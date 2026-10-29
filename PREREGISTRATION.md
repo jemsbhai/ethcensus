@@ -98,11 +98,12 @@ Krippendorff's alpha (nominal) on the five-class coarse label in the reliability
 
 ## 6. Classifier study (EXP-004)
 
-### 6.1 Models (TO CONFIRM)
+### 6.1 Models (primary TO CONFIRM)
 
-- Primary: one Ollama cloud model, chosen on the development set before any test-set evaluation and recorded by name, tag, digest and run date. Candidate list from the Ollama cloud catalogue on 2026-10-29: deepseek-v4.1-flash, glm-5.3, kimi-k3, nemotron-3-ultra, mistral-large-4, gemma4:31b.
-- Secondary: one open-weight model served locally on the RTX 4090 (16 GB VRAM), pinned by digest, for reproducibility without cloud access. Candidate: gemma4:12b.
-- Both run; the primary is named before the test set is touched and is the one H3 refers to. The secondary is a sensitivity analysis, not an independent rater.
+- Both classifiers are Ollama cloud models called directly at https://ollama.com/api/chat with an account key (decision D10; no model is hosted locally). Candidate list from the Ollama cloud catalogue on 2026-10-29: deepseek-v4.1-flash, glm-5.3, kimi-k3, nemotron-3-ultra, mistral-large-4, gemma4:31b.
+- Primary: chosen on the development set before any test-set evaluation and recorded by name, tag, digest and run date; it is the model H3 refers to.
+- Secondary: a second cloud model from a different developer, run as a sensitivity analysis, not as an independent rater.
+- Reproducibility under cloud serving: every raw model response (prompt hash, model digest, run date, full JSON output) is committed, so every downstream number can be recomputed from the committed outputs even if a model is changed or withdrawn. A reader with the same key can re-run the prompts against the same model tag and compare agreement with the committed outputs; the paper reports that agreement if a re-run is made before submission.
 
 ### 6.2 Inputs and prompt
 
@@ -172,3 +173,4 @@ Primary target: Journal of Artificial Intelligence Research. The manuscript is w
 ## Revision log
 
 - 2026-10-29 v0.1: initial draft from the three background reports in `_ai/paper4/reports/`.
+- 2026-10-29 v0.1a: Section 6.1 changed from a local secondary model to two cloud models (decision D10).

@@ -227,6 +227,15 @@ def test_merge_by_doi_arxiv_and_title():
     assert [e.entry_id for e in entries] == ["E000001", "E000002", "E000003", "E000004"]
 
 
+def test_mark_seeds_flags_seed_records_only():
+    entries = C.merge_candidates([C.candidate_from_openalex(oa_work("W1985572324", doi="10.1006/jcss.2000.1727"), "IPZ01"),
+                                  C.candidate_from_openalex(oa_work("W77", doi="10.1/other"), "IPZ01")])
+    n = C.mark_seeds(entries, ["W1985572324", "W1507717186"], ["94ebc9130e780c017e6e851c8c3d24b7c61c727d"])
+    assert n == 1
+    flagged = {e.doi: e.is_seed for e in entries}
+    assert flagged == {"10.1006/jcss.2000.1727": True, "10.1/other": False}
+
+
 def test_merge_same_source_record_twice_collapses():
     rec = oa_work("W9", doi="10.1/z")
     entries = C.merge_candidates([C.candidate_from_openalex(rec, "IP01"), C.candidate_from_openalex(rec, "IPZ01")])
@@ -248,8 +257,8 @@ def test_write_snapshot_and_checksums(tmp_path: Path):
     line = json.loads(jsonl.read_text(encoding="utf-8").splitlines()[0])
     assert line["entry_id"] == "E000001" and line["doi"] == "10.1/x"
     manifest = Path(paths["manifest"]).read_text(encoding="utf-8").splitlines()
-    assert manifest[0].startswith("entry_id,doi,arxiv_id")
-    assert len(manifest) == 2
+    assert manifest[0].startswith("entry_id,doi,arxiv_id") and manifest[0].endswith("is_seed,merge_keys")
+    assert len(manifest) == 2 and manifest[1].split(",")[-2] == "0"
     with pytest.raises(FileExistsError):
         C.write_snapshot(entries, raw, "2026-10-29")
     out = C.update_checksums(data_dir, [jsonl, Path(paths["manifest"])])
@@ -271,6 +280,11 @@ def test_snapshot_counts_reports_stage_counts():
     assert counts["entries_in_both_sources"] == 1
     assert counts["entries_with_arxiv"] == 1
     assert counts["candidates_by_seed_and_source"] == {"IP01:openalex": 1, "IP01:s2": 1}
+    assert counts["entries_merged_by_title_only"] == 0 and counts["entries_with_multiple_openalex_ids"] == 0
+    title_only = C.merge_candidates([C.candidate_from_openalex(oa_work("W3", title="Treewidth bounds", year=2011), "IP01"),
+                                     C.candidate_from_openalex(oa_work("W4", title="Treewidth bounds", year=2012), "IP01")])
+    c2 = C.snapshot_counts(title_only, [])
+    assert c2["entries_merged_by_title_only"] == 1 and c2["entries_with_multiple_openalex_ids"] == 1
 
 
 def test_environment_snapshot_has_required_keys(tmp_path: Path):

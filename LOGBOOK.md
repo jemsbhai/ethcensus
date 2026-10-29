@@ -67,6 +67,9 @@ Not applicable.
 - `CODEBOOK.md` v0.1 and `PREREGISTRATION.md` v0.1 drafted from three background reports kept outside the repository (`_ai/paper4/reports/01` to `03`). Facts carried into the drafts: no public list of the 800+ dependent papers exists; Gap-ETH is refuted on paper only (no Lean statement in either repository); Orthogonal Vectors, k-Clique, Set Cover, unbounded-width CNF-SAT, pathwidth-SETH, PIH and Weak ETH (no 2^{n^{1-eps}}) are not refuted; OpenAlex and Semantic Scholar identifiers for the twelve seed records; direct citers of the two ETH-defining papers number about 2,600 distinct works in Semantic Scholar, about half with arXiv full text.
 - Open decisions before the tag `prereg-v1`: gold-set option A or B, primary classifier model, venue.
 
+### Addendum 2026-10-29 16:45
+- D10 (supersedes D5): classification uses Ollama cloud models only, called directly at https://ollama.com/api/chat with the account key; no model is hosted locally. Primary and secondary classifiers are two different cloud models, each recorded by name, tag, digest and run date. Because cloud weights are outside the authors' control, every raw model response is committed so that the analysis is reproducible from the recorded outputs even if a model is later changed or withdrawn.
+
 ---
 
 ## EXP-001: Corpus construction from the citation graphs of the seed works
@@ -120,3 +123,8 @@ To be filled.
 - Expectation: text_basis LATEX for at least 40 percent of core entries and LATEX or PDF for at least 60 percent, from the S2 pilot numbers (51 percent with arXiv identifiers, 42 percent with an OA PDF URL).
 - The OpenAlex cached-PDF fallback (`--use-openalex-content`, $0.01 per download) is not used in the first full run; its use for the remaining entries is decided after step 8 and logged as its own addendum.
 - Additional artifacts: `data/processed/fulltext_status_<date>.csv` (committed), checksum lines for every downloaded file (committed), the downloads themselves (git-ignored, never redistributed).
+
+### Addendum 2026-10-29 16:50: protocol step 2 executed (count-only), commit 4eabed8
+- OpenAlex citer counts per seed: IP01 1146, IPZ01 1442, CIP09 124, DIN16 45, MR17 54, DHMTW14 97, CGIMPS16 101, WIL05 421, CDLMNOPSW16 187, LMS11 335, VW18 101; union of core seeds 2187 distinct works. Budget after twelve calls: $0.9989 of the daily $1.
+- Check against the pre-stated expectation (3,000 to 5,000 for the deduplicated union of both sources): OpenAlex alone gives 2,187, inside the 2,000 to 7,000 tripwire band, below the expected range. The S2 pilot found 2,596 distinct citers of IP01 and IPZ01 alone, so the two sources differ in coverage by roughly 20 to 30 percent; the expectation is re-checked when the S2 key arrives and the union is built. Whichever way it falls, the difference in coverage between the two databases is itself reported in the paper.
+- The Semantic Scholar key has been requested; steps 3 and 4 (smoke run, full pull) wait for it so that the snapshot carries both sources at once. A smoke run with OpenAlex only is permitted in the meantime because it writes to a git-ignored scratch directory.

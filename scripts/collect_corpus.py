@@ -114,6 +114,9 @@ def main(argv: list[str] | None = None) -> int:
             log.info("%s: Semantic Scholar fetched=%d", code, n)
 
     entries = C.merge_candidates(candidates)
+    all_seeds = seeds_cfg["seeds"] + seeds_cfg.get("recall_check_seeds", [])
+    n_seed = C.mark_seeds(entries, [w for s in all_seeds for w in s["openalex"]], [s["s2"] for s in all_seeds])
+    log.info("%d entries are seed works themselves (flagged is_seed)", n_seed)
     data_dir = Path(args.data_dir)
     paths = C.write_snapshot(entries, data_dir / "raw", args.snapshot_date)
     checksum_file = C.update_checksums(data_dir, [Path(paths["jsonl"]), Path(paths["manifest"])])

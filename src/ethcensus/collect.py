@@ -391,6 +391,7 @@ class CorpusEntry:
     merge_keys: list[str]
     openalex_records: list[dict]
     s2_records: list[dict]
+    is_seed: bool = False
 
 
 class _UnionFind:
@@ -496,6 +497,18 @@ def merge_candidates(cands: Sequence[Candidate], year_tolerance: int = 1) -> lis
     return entries
 
 
+def mark_seeds(entries: Sequence[CorpusEntry], seed_openalex_ids: Iterable[str], seed_s2_ids: Iterable[str]) -> int:
+    """Flag entries that are themselves seed works (hypothesis-defining papers citing other seeds)."""
+    oa = set(seed_openalex_ids)
+    s2 = set(seed_s2_ids)
+    n = 0
+    for e in entries:
+        if any(i in oa for i in e.openalex_ids) or any(i in s2 for i in e.s2_paper_ids):
+            e.is_seed = True
+            n += 1
+    return n
+
+
 # ---------------------------------------------------------------------------
 # Snapshot, counts, checksums, environment
 # ---------------------------------------------------------------------------
@@ -522,12 +535,12 @@ def write_snapshot(entries: Sequence[CorpusEntry], data_raw_dir: Path, snapshot_
         w = csv.writer(f)
         w.writerow(["entry_id", "doi", "arxiv_id", "openalex_ids", "s2_paper_ids", "title", "year",
                     "first_author", "venue", "doc_type", "seeds_cited", "oa_pdf_url", "cited_by_count",
-                    "sources", "n_contexts"])
+                    "sources", "n_contexts", "is_seed", "merge_keys"])
         for e in entries:
             w.writerow([e.entry_id, e.doi or "", e.arxiv_id or "", ";".join(e.openalex_ids), ";".join(e.s2_paper_ids),
                         e.title, e.year if e.year is not None else "", e.first_author, e.venue, e.doc_type,
                         ";".join(e.seeds_cited), e.oa_pdf_url or "", e.cited_by_count if e.cited_by_count is not None else "",
-                        ";".join(e.sources), len(e.contexts)])
+                        ";".join(e.sources), len(e.contexts), int(e.is_seed), ";".join(e.merge_keys)])
     return {"jsonl": str(jsonl_path), "manifest": str(manifest_path)}
 
 
@@ -563,7 +576,13 @@ def snapshot_counts(entries: Sequence[CorpusEntry], cands: Sequence[Candidate]) 
         "entries_with_arxiv": sum(1 for e in entries if e.arxiv_id),
         "entries_with_oa_pdf_url": sum(1 for e in entries if e.oa_pdf_url),
         "entries_in_both_sources": sum(1 for e in entries if len(e.sources) == 2),
-        "entries_merged_by_title": sum(1 for e in entries if any(k.startswith("title:") for k in e.merge_keys)),
+        "entries_with_multiple_openalex_ids": sum(1 for e in entries if len(e.openalex_ids) > 1),
+        "entries_merged_by_title_only": sum(
+            1 for e in entries
+            if len(e.openalex_ids) + len(e.s2_paper_ids) > 1
+            and any(k.startswith("title:") for k in e.merge_keys)
+            and not any(k.startswith(("doi:", "arxiv:")) for k in e.merge_keys)),
+        "entries_is_seed": sum(1 for e in entries if e.is_seed),
     }
 
 
