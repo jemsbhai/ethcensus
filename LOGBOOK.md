@@ -134,3 +134,45 @@ To be filled.
 - Spot check of all 32 multi-record entries by title, first author and year: every one is a conference, journal or preprint version of the same paper (examples: Patrascu and Williams, SODA 2010; Abboud, Vassilevska Williams and Wang, 2015; Gao, Impagliazzo, Kolokolova and Williams, 2017, three records). No false merge found; the title rule (normalized title, first-author surname, years within one) is kept for the full pull.
 - Known OpenAlex quirk confirmed in the data: the CCC 1999 record of IP01 carries publication_year 2003.
 - Process note: commit a3fd428 was made while one test (a fixture with identical default titles that the merge rule correctly unified) was failing; the fixture is corrected in the following commit. The code under test was not at fault.
+
+---
+
+## EXP-002: Extraction of hypothesis contexts from full texts
+
+**Date:** 2026-10-29 17:10 (America/New_York)
+**Researcher:** MS
+**Type:** computational (deterministic text processing)
+**Status:** planned
+
+### Hypothesis
+Pre-stated expectations: among entries with text basis LATEX, at least 80 percent yield at least one context (a hypothesis mention outside or inside a theorem-like environment); among those, at least 40 percent have at least one theorem-kind context. Lower figures mean the citation criterion admits many papers that cite a seed without using a hypothesis, which is itself a reportable number, not a failure. Extractor recall (the share of annotator-identified results that the extractor captured) is measured on the development set in EXP-003 and reported in the paper.
+
+### Independent Variables
+- Text basis: LATEX (flattened e-print), PDF (PyMuPDF text), ABSTRACT.
+- Patterns file version (`configs/patterns.yaml`, hashed into the experiment config).
+
+### Dependent Variables / Metrics
+- Per text basis: entries, entries with at least one context, contexts, theorem-kind contexts. Per entry: number of contexts, hypothesis codes mentioned, whether a premise phrase matched.
+
+### Control Conditions
+- Deterministic; same inputs and patterns give identical outputs. Outputs are never overwritten.
+
+### Protocol
+1. `pytest tests -v` green (extractor tests in `tests/test_extract.py`).
+2. Smoke: run on the OpenAlex-only smoke fetch: `python scripts/extract_contexts.py --status experiments/EXP-001/smoke/data/processed/fulltext_status_2026-10-29.csv --data-dir experiments/EXP-001/smoke/data --out experiments/EXP-002/smoke`; read a few contexts by eye and record what the patterns miss or over-match.
+3. After EXP-001 completes: `python scripts/extract_contexts.py --status data/processed/fulltext_status_<date>.csv --out experiments/EXP-002`; commit `data/processed/contexts_<date>.jsonl` (short quotations with locators; the paper's scholarly-analysis basis for quotation) and the results files.
+
+### Environment
+- As EXP-001; git commit recorded at step 3.
+
+### Results
+To be filled.
+
+### Observations
+To be filled.
+
+### Interpretation
+To be filled.
+
+### Artifacts
+- `data/processed/contexts_<date>.jsonl`, `experiments/EXP-002/results/extract_counts_<date>.json`, `experiments/EXP-002/results/entry_summaries_<date>.json`, `experiments/EXP-002/config.yaml` (patterns hash), `experiments/EXP-002/environment.json`.

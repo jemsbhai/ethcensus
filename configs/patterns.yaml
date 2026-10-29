@@ -12,9 +12,9 @@ exclusions:
   - "\\bETH\\s+Domain\\b"
 patterns:
   ETH:
-    - "\\bExponential[- ]Time Hypothesis\\b"
-    - "(?i)\\bexponential[- ]time hypothesis\\b"
-    - "\\bETH\\b"
+    # "Strong Exponential Time Hypothesis", "Gap-ETH" and "#ETH" must not also count as ETH.
+    - "(?i)(?<!strong )\\bexponential[- ]time hypothesis\\b"
+    - "(?<![#\\-])\\bETH\\b"
     - "\\br-?ETH\\b"
   SETH:
     - "(?i)\\bStrong Exponential[- ]Time Hypothesis\\b"
