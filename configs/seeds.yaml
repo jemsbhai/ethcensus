@@ -1,0 +1,80 @@
+# Seed works that define the corpus. Identifiers verified against the public
+# OpenAlex and Semantic Scholar APIs on 2026-10-29 (see PREREGISTRATION.md 3.1).
+# OpenAlex keeps conference and journal versions as separate works; Semantic
+# Scholar merges them into one record. Both lists are therefore given.
+version: 0.1
+reference_date: "2026-10-29"
+seeds:
+  - code: IP01
+    group: core
+    hypothesis: ETH
+    label: "Impagliazzo, Paturi. On the complexity of k-SAT. CCC 1999; JCSS 62(2) 2001"
+    openalex: [W1507717186, W1985572324]
+    s2: 94ebc9130e780c017e6e851c8c3d24b7c61c727d
+  - code: IPZ01
+    group: core
+    hypothesis: ETH
+    label: "Impagliazzo, Paturi, Zane. Which problems have strongly exponential complexity? FOCS 1998; JCSS 63(4) 2001"
+    openalex: [W1684108869, W1995725694]
+    s2: a3651caf1265328e3231fe2d261679b4d926d5b7
+  - code: CIP09
+    group: core
+    hypothesis: SETH
+    label: "Calabro, Impagliazzo, Paturi. The complexity of satisfiability of small depth circuits. IWPEC 2009"
+    openalex: [W1576180980]
+    s2: b0fc4fffa1f9fa85ea82167ea48b9cee1406ebc1
+  - code: DIN16
+    group: core
+    hypothesis: GAP_ETH
+    label: "Dinur. Mildly exponential reduction from gap 3SAT to polynomial-gap label-cover. ECCC TR16-128"
+    openalex: [W2576456765]
+    s2: 1d409293c2cc9913295be8a6778127bbc29d2beb
+  - code: MR17
+    group: core
+    hypothesis: GAP_ETH
+    label: "Manurangsi, Raghavendra. A birthday repetition theorem and complexity of approximating dense CSPs. ICALP 2017"
+    openalex: [W2461430093]
+    s2: b1f811e3e29382fa1de591957804aafdef382fd6
+  - code: DHMTW14
+    group: core
+    hypothesis: SHARP_ETH
+    label: "Dell, Husfeldt, Marx, Taslaman, Wahlen. Exponential time complexity of the permanent and the Tutte polynomial. TALG 2014; ICALP 2010"
+    openalex: [W2021372200, W1786652263]
+    s2: 6c35958ed428d76cce9a20c28321e1432e3fd80c
+  - code: CGIMPS16
+    group: core
+    hypothesis: NSETH
+    label: "Carmosino, Gao, Impagliazzo, Mihajlin, Paturi, Schneider. Nondeterministic extensions of the Strong Exponential Time Hypothesis. ITCS 2016"
+    openalex: [W2294619171]
+    s2: 318a0217242c181ebe66e15056bbc2901f1b47f7
+  - code: WIL05
+    group: aux
+    hypothesis: OVH
+    label: "Williams. A new algorithm for optimal 2-constraint satisfaction and its implications. TCS 2005; ICALP 2004"
+    openalex: [W2084732238, W1571792361]
+    s2: cde0d7cc93fc82fcf218db056d1e6a2053266af8
+  - code: CDLMNOPSW16
+    group: aux
+    hypothesis: SCC
+    label: "Cygan et al. On problems as hard as CNF-SAT. TALG 2016; CCC 2012"
+    openalex: [W2404960361, W2139087151]
+    s2: aec7d7d5d81064942bc5cebf8455f150e8d7ac57
+  - code: LMS11
+    group: aux
+    hypothesis: SURVEY
+    label: "Lokshtanov, Marx, Saurabh. Lower bounds based on the Exponential Time Hypothesis. BEATCS 105, 2011 (conflated with chapter 14 of Parameterized Algorithms, 2015)"
+    openalex: [W2249739104]
+    s2: 77042a24ac267ba3d486c9dc53693e03626c9b80
+  - code: VW18
+    group: aux
+    hypothesis: SURVEY
+    label: "Vassilevska Williams. On some fine-grained questions in algorithms and complexity. ICM 2018"
+    openalex: [W2972926935]
+    s2: 7659e4632203e8af7b4c3907b6c851e2ebc93496
+# Used only for the recall check of PREREGISTRATION.md 3.5, never in the corpus.
+recall_check_seeds:
+  - code: CFKLMPPS15
+    hypothesis: BOOK
+    label: "Cygan et al. Parameterized Algorithms. Springer 2015 (book-level record)"
+    openalex: [W2914414140]
+    s2: d4dcfa3c9876b20308a45a7237e8ff0a7e147b12

@@ -47,7 +47,7 @@ Not applicable.
 ### Environment
 - **Hardware:** Windows 11 laptop, Intel i9-14900HX, 64 GB RAM, NVIDIA RTX 4090 Laptop GPU (16 GB VRAM)
 - **Software:** Python 3.12; package versions to be recorded in `requirements.lock.txt`
-- **Git commit:** to be recorded after `git init` and the first commit
+- **Git commit:** 164f38644845964f8688501efb2f23597733e587 (root commit, 2026-10-29; public repository https://github.com/jemsbhai/ethcensus)
 - **Config file:** `configs/base.yaml`
 - **Seeds:** master seed 20261029, recorded in `configs/base.yaml`
 
@@ -63,6 +63,54 @@ Not applicable.
 ### Artifacts
 - This file, `README.md`, `.gitignore`, `.env.example`, `LICENSE`, `pyproject.toml`, `requirements.txt`, `configs/base.yaml`, `data/DATA_README.md`, `src/ethcensus/__init__.py`, `tests/test_smoke.py`.
 
-### Addendum 2026-10-29 18:10
+### Addendum 2026-10-29 16:00
 - `CODEBOOK.md` v0.1 and `PREREGISTRATION.md` v0.1 drafted from three background reports kept outside the repository (`_ai/paper4/reports/01` to `03`). Facts carried into the drafts: no public list of the 800+ dependent papers exists; Gap-ETH is refuted on paper only (no Lean statement in either repository); Orthogonal Vectors, k-Clique, Set Cover, unbounded-width CNF-SAT, pathwidth-SETH, PIH and Weak ETH (no 2^{n^{1-eps}}) are not refuted; OpenAlex and Semantic Scholar identifiers for the twelve seed records; direct citers of the two ETH-defining papers number about 2,600 distinct works in Semantic Scholar, about half with arXiv full text.
 - Open decisions before the tag `prereg-v1`: gold-set option A or B, primary classifier model, venue.
+
+---
+
+## EXP-001: Corpus construction from the citation graphs of the seed works
+
+**Date:** 2026-10-29 16:30 (America/New_York)
+**Researcher:** MS
+**Type:** computational (API data collection)
+**Status:** planned
+
+### Hypothesis
+Descriptive experiment with pre-stated expectations, from the Semantic Scholar pilot numbers in `_ai/paper4/reports/01` (2,596 distinct citers of IP01 and IPZ01 in S2 on 2026-10-29, 51 percent with arXiv identifiers): the union of citers of the seven core seeds, deduplicated across OpenAlex and Semantic Scholar, will contain between 3,000 and 5,000 entries, with at least 45 percent carrying an arXiv identifier and at least 60 percent a DOI. A count outside 2,000 to 7,000 triggers a check of the seed identifiers before anything else is done.
+
+### Independent Variables
+- Seed group: core (IP01, IPZ01, CIP09, DIN16, MR17, DHMTW14, CGIMPS16) and aux (WIL05, CDLMNOPSW16, LMS11, VW18), tagged per entry so every later statistic can be reported with and without aux.
+- Source: OpenAlex (filter `cites:`, cursor paging) and Semantic Scholar (`/paper/{id}/citations`, offset paging, with citation contexts).
+
+### Dependent Variables / Metrics
+- Counts at every stage: candidates per seed and source, `meta.count` versus fetched per seed (OpenAlex), entries after merging, entries with DOI, with arXiv identifier, with an OA PDF URL, present in both sources, merged by title match.
+
+### Control Conditions
+- Deterministic given the API state; the snapshot is dated and never overwritten. The collection runs once; a rerun produces a new dated snapshot and is a new logbook entry.
+
+### Protocol
+1. Confirm the keys are in `.env` and that `pytest tests -v` passes (21 tests).
+2. Cheap check of keys and identifiers: `python scripts/collect_corpus.py --out experiments/EXP-001 --count-only`. Record the printed counts here.
+3. Smoke run of one page per seed and source into a scratch data directory that git ignores: `python scripts/collect_corpus.py --out experiments/EXP-001 --max-pages 1 --data-dir experiments/EXP-001/smoke`. Inspect `experiments/EXP-001/smoke/raw/manifest_<date>.csv`.
+4. Commit the clean tree, then run the full collection: `python scripts/collect_corpus.py --out experiments/EXP-001`. Expected duration: OpenAlex about 60 list calls at 30 per second; Semantic Scholar about 12 pages at 1 request per second; under five minutes if no 429 backoff is needed.
+5. Record the commit SHA, `experiments/EXP-001/results/counts.json`, and the snapshot file name in the Results section; commit the snapshot, manifest and checksums.
+
+### Environment
+- **Hardware:** Windows 11 laptop, Intel i9-14900HX, 64 GB RAM
+- **Software:** Python 3.12; versions in `requirements.lock.txt`; `experiments/EXP-001/environment.json` written by the script
+- **Git commit:** to be recorded at step 4
+- **Config file:** `configs/base.yaml` and `configs/seeds.yaml`, frozen into `experiments/EXP-001/config.yaml`
+- **Seeds:** master seed 20261029 (no randomness in this experiment)
+
+### Results
+To be filled.
+
+### Observations
+To be filled.
+
+### Interpretation
+To be filled.
+
+### Artifacts
+- `data/raw/corpus_snapshot_<date>.jsonl`, `data/raw/manifest_<date>.csv`, `data/checksums.sha256`, `experiments/EXP-001/results/counts.json`, `experiments/EXP-001/config.yaml`, `experiments/EXP-001/environment.json`.

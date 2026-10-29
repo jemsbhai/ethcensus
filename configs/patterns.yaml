@@ -1,0 +1,70 @@
+# Hypothesis-mention patterns for the extractor (CODEBOOK.md Section 9).
+# Python regular expressions, matched case-sensitively unless a pattern starts
+# with (?i). A sentence that matches an exclusion is dropped before matching.
+# This file is frozen with the tag prereg-v1; changes afterwards are a new version.
+version: 0.1
+window_sentences: 3
+theorem_environments: [theorem, corollary, lemma, proposition, claim, observation, conjecture, hypothesis]
+exclusions:
+  - "ETH\\s+Z(u|ü)rich"
+  - "\\bETHZ\\b"
+  - "\\bETH,?\\s+Switzerland"
+  - "\\bETH\\s+Domain\\b"
+patterns:
+  ETH:
+    - "\\bExponential[- ]Time Hypothesis\\b"
+    - "(?i)\\bexponential[- ]time hypothesis\\b"
+    - "\\bETH\\b"
+    - "\\br-?ETH\\b"
+  SETH:
+    - "(?i)\\bStrong Exponential[- ]Time Hypothesis\\b"
+    - "\\bSETH\\b"
+  GAP_ETH:
+    - "\\bGap[- ]ETH\\b"
+    - "(?i)\\bgap exponential[- ]time hypothesis\\b"
+  SHARP_ETH:
+    - "#\\s?ETH\\b"
+    - "#\\s?SETH\\b"
+    - "(?i)\\bcounting exponential[- ]time hypothesis\\b"
+  NSETH:
+    - "\\bNSETH\\b"
+    - "(?i)\\bnondeterministic strong exponential[- ]time hypothesis\\b"
+  NU_ETH:
+    - "(?i)\\bnon-?uniform (S)?ETH\\b"
+  OVH:
+    - "(?i)\\borthogonal vectors?\\b"
+    - "\\bk-OV\\b"
+    - "\\bOVH\\b"
+    - "\\bOVC\\b"
+    - "\\bOV (conjecture|hypothesis)\\b"
+  MAXIP:
+    - "(?i)\\bmax(imum)?[- ]inner[- ]product\\b"
+    - "(?i)\\bbichromatic closest pair\\b"
+  SCC:
+    - "(?i)\\bset cover conjecture\\b"
+  KCLIQUE:
+    - "(?i)\\bk-clique (hypothesis|conjecture)\\b"
+  CNFSAT:
+    - "(?i)\\bCNF-?SAT (hypothesis|conjecture)\\b"
+  PIH:
+    - "\\bPIH\\b"
+    - "(?i)\\bparameterized inapproximability hypothesis\\b"
+  APSP:
+    - "\\bAPSP\\b"
+  THREESUM:
+    - "\\b3-?SUM\\b"
+  HS:
+    - "(?i)\\bhitting set (conjecture|hypothesis)\\b"
+  UGC:
+    - "(?i)\\bunique games conjecture\\b"
+    - "\\bUGC\\b"
+  W1:
+    - "\\bW\\[1\\]\\b"
+    - "\\bFPT\\s*(\\\\neq|!=|≠)\\s*W\\[1\\]"
+premise_phrases:
+  - "(?i)\\bunless (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH) (fails|is false)"
+  - "(?i)\\bassuming (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH)\\b"
+  - "(?i)\\bunder (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH)\\b"
+  - "(?i)\\b(S|gap-?|#)?ETH[- ]hard\\b"
+  - "(?i)\\bconditional (lower bound|on)\\b"
+  - "(?i)\\bif (the )?(S|gap-?|#)?ETH (holds|is true)\\b"

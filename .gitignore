@@ -39,6 +39,7 @@ data/processed/fulltext/
 experiments/**/logs/*.jsonl
 experiments/**/cache/
 experiments/**/raw_responses/
+experiments/**/smoke/
 
 # LaTeX build artifacts
 paper/*.aux
