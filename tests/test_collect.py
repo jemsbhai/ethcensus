@@ -228,8 +228,11 @@ def test_merge_by_doi_arxiv_and_title():
 
 
 def test_mark_seeds_flags_seed_records_only():
-    entries = C.merge_candidates([C.candidate_from_openalex(oa_work("W1985572324", doi="10.1006/jcss.2000.1727"), "IPZ01"),
-                                  C.candidate_from_openalex(oa_work("W77", doi="10.1/other"), "IPZ01")])
+    entries = C.merge_candidates([
+        C.candidate_from_openalex(oa_work("W1985572324", doi="10.1006/jcss.2000.1727", title="On the Complexity of k-SAT",
+                                          year=2001, author="Russell Impagliazzo"), "IPZ01"),
+        C.candidate_from_openalex(oa_work("W77", doi="10.1/other", title="Some other paper"), "IPZ01")])
+    assert len(entries) == 2
     n = C.mark_seeds(entries, ["W1985572324", "W1507717186"], ["94ebc9130e780c017e6e851c8c3d24b7c61c727d"])
     assert n == 1
     flagged = {e.doi: e.is_seed for e in entries}
