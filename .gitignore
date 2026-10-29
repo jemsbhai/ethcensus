@@ -1,0 +1,52 @@
+# Secrets
+.env
+.env.local
+*.key
+*secrets*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data that is never committed: full texts and bulk downloads.
+# Manifests, checksums and derived annotations ARE committed.
+data/raw/fulltext/
+data/raw/pdf/
+data/raw/latex/
+data/raw/api_cache/
+data/processed/fulltext/
+*.pdf
+*.tar
+*.tar.gz
+*.zip
+
+# Experiment outputs that are large or regenerable. Frozen configs,
+# environment snapshots, seeds, results summaries and figures are committed.
+experiments/**/logs/*.jsonl
+experiments/**/cache/
+experiments/**/raw_responses/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.toc

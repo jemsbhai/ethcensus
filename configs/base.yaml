@@ -1,0 +1,28 @@
+# Shared defaults for every experiment. Each experiment freezes a copy of its
+# effective configuration into experiments/EXP-XXX/config.yaml; scripts run
+# from the frozen copy, never from this file.
+
+project: ethcensus
+master_seed: 20261029
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  experiments: experiments
+  figures: figures
+
+apis:
+  openalex:
+    base_url: https://api.openalex.org
+    per_page: 200
+    # Keys and the mailto address are read from .env (OPENALEX_API_KEY, OPENALEX_MAILTO).
+  semanticscholar:
+    base_url: https://api.semanticscholar.org/graph/v1
+    # Key read from .env (S2_API_KEY).
+  arxiv:
+    base_url: https://export.arxiv.org/api/query
+    request_interval_seconds: 3
+
+# Seed works that define the hypotheses. Identifiers are filled in from the
+# verified list in PREREGISTRATION.md before EXP-001 runs.
+seeds: []

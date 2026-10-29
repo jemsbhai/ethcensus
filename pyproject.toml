@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ethcensus"
+version = "0.0.1"
+description = "Census pipeline for results conditional on the Exponential Time Hypothesis: corpus collection, hypothesis-context extraction, annotation, LLM classification and error-corrected prevalence estimation."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+  {name = "Muntaser Syed", email = "msyed2011@my.fit.edu"},
+]
+keywords = ["exponential time hypothesis", "fine-grained complexity", "scientometrics", "annotation", "quantification"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "requests>=2.32",
+  "pyyaml>=6.0",
+  "pandas>=2.2",
+  "numpy>=2.0",
+  "scipy>=1.14",
+  "tqdm>=4.66",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[project.urls]
+Repository = "https://github.com/jemsbhai/ethcensus"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

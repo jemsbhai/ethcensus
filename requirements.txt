@@ -1,0 +1,12 @@
+# Direct dependencies. After `pip install -r requirements.txt` run
+# `pip freeze > requirements.lock.txt` and commit the lock file; the lock
+# file is the record of the exact versions used for every reported run.
+requests>=2.32
+pyyaml>=6.0
+pandas>=2.2
+numpy>=2.0
+scipy>=1.14
+tqdm>=4.66
+python-dotenv>=1.0
+pytest>=8.0
+pytest-cov>=5.0
