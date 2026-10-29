@@ -114,3 +114,9 @@ To be filled.
 
 ### Artifacts
 - `data/raw/corpus_snapshot_<date>.jsonl`, `data/raw/manifest_<date>.csv`, `data/checksums.sha256`, `experiments/EXP-001/results/counts.json`, `experiments/EXP-001/config.yaml`, `experiments/EXP-001/environment.json`.
+
+### Addendum 2026-10-29 16:40: stage 2, full-text acquisition
+- Protocol continues after step 5: (6) smoke run `python scripts/fetch_fulltext.py --snapshot data/raw/corpus_snapshot_<date>.jsonl --out experiments/EXP-001 --limit 5`, inspect `data/processed/fulltext/E*/` and the status file; (7) full run without `--limit`; the run is resumable and obeys the arXiv limit of one request per three seconds, so about 2,000 arXiv entries take at least two hours (two calls when the e-print is not usable); (8) record `experiments/EXP-001/results/fulltext_counts_<date>.json` (entries by text basis and by source) in Results.
+- Expectation: text_basis LATEX for at least 40 percent of core entries and LATEX or PDF for at least 60 percent, from the S2 pilot numbers (51 percent with arXiv identifiers, 42 percent with an OA PDF URL).
+- The OpenAlex cached-PDF fallback (`--use-openalex-content`, $0.01 per download) is not used in the first full run; its use for the remaining entries is decided after step 8 and logged as its own addendum.
+- Additional artifacts: `data/processed/fulltext_status_<date>.csv` (committed), checksum lines for every downloaded file (committed), the downloads themselves (git-ignored, never redistributed).
