@@ -14,6 +14,7 @@ hashed snapshot that later experiments read.
 from __future__ import annotations
 
 import csv
+import gzip
 import hashlib
 import json
 import logging
@@ -573,6 +574,38 @@ def write_snapshot(entries: Sequence[CorpusEntry], data_raw_dir: Path, snapshot_
                         ";".join(e.seeds_cited), e.oa_pdf_url or "", e.cited_by_count if e.cited_by_count is not None else "",
                         ";".join(e.sources), len(e.contexts), int(e.is_seed), ";".join(e.merge_keys)])
     return {"jsonl": str(jsonl_path), "manifest": str(manifest_path)}
+
+
+def iter_snapshot(path: Path | str) -> Iterator[dict]:
+    """Yield the entries of a snapshot, plain ``.jsonl`` or gzip-compressed ``.jsonl.gz``."""
+    p = Path(path)
+    opener = gzip.open if p.suffix == ".gz" else open
+    with opener(p, "rt", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                yield json.loads(line)
+
+
+def snapshot_label(path: Path | str) -> str:
+    """``corpus_snapshot_2026-10-30.jsonl.gz`` -> ``2026-10-30``."""
+    name = Path(path).name
+    for suffix in (".gz", ".jsonl"):
+        if name.endswith(suffix):
+            name = name[: -len(suffix)]
+    return name.replace("corpus_snapshot_", "")
+
+
+def compress_snapshot(jsonl_path: Path | str) -> Path:
+    """Write ``<path>.gz`` next to a plain snapshot (deterministic: no mtime in the gzip header). Refuses to overwrite."""
+    src = Path(jsonl_path)
+    dst = src.with_name(src.name + ".gz")
+    if dst.exists():
+        raise FileExistsError(f"{dst} exists; snapshots are never overwritten")
+    with open(src, "rb") as f_in, open(dst, "wb") as f_raw:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=f_raw, mtime=0) as f_out:
+            for chunk in iter(lambda: f_in.read(1 << 20), b""):
+                f_out.write(chunk)
+    return dst
 
 
 def update_checksums(data_dir: Path, paths: Iterable[Path]) -> Path:

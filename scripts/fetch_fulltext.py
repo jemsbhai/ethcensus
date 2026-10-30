@@ -66,7 +66,7 @@ def main(argv=None) -> int:
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     load_dotenv()
     snapshot = Path(args.snapshot)
-    label = args.status_date or snapshot.stem.replace("corpus_snapshot_", "") or date.today().isoformat()
+    label = args.status_date or C.snapshot_label(snapshot) or date.today().isoformat()
     data_dir = Path(args.data_dir)
     raw_dir = data_dir / "raw" / "fulltext"
     processed_dir = data_dir / "processed" / "fulltext"

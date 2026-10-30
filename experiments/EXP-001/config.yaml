@@ -12,6 +12,8 @@ base:
       per_page: 200
     semanticscholar:
       base_url: https://api.semanticscholar.org/graph/v1
+      min_interval_seconds: 1.1
+      limit: 1000
     arxiv:
       base_url: https://export.arxiv.org/api/query
       request_interval_seconds: 3
@@ -128,8 +130,8 @@ args:
   sources:
   - openalex
   - s2
-  snapshot_date: '2026-10-29'
+  snapshot_date: '2026-10-30'
   data_dir: data
   max_pages: null
-  count_only: true
+  count_only: false
   verbose: false

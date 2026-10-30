@@ -18,10 +18,8 @@ are recorded in LOGBOOK.md.
 from __future__ import annotations
 
 import argparse
-import json
 import random
 import sys
-from pathlib import Path
 
 from ethcensus import collect as C
 
@@ -74,13 +72,10 @@ def main(argv=None) -> int:
     args = parse_args(argv)
     entries = []
     all_entries = []
-    with open(Path(args.snapshot), encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                e = json.loads(line)
-                all_entries.append(e)
-                if args.mode != "split" and selected(e, args.mode):
-                    entries.append(e)
+    for e in C.iter_snapshot(args.snapshot):          # plain .jsonl or .jsonl.gz
+        all_entries.append(e)
+        if args.mode != "split" and selected(e, args.mode):
+            entries.append(e)
     if args.mode == "split":
         entries = split_groups(all_entries)
     total = len(entries)

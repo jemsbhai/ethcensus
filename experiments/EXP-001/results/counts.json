@@ -1,0 +1,112 @@
+{
+  "candidates_total": 9569,
+  "candidates_by_seed_and_source": {
+    "CDLMNOPSW16:openalex": 187,
+    "CDLMNOPSW16:s2": 263,
+    "CGIMPS16:openalex": 101,
+    "CGIMPS16:s2": 138,
+    "CIP09:openalex": 124,
+    "CIP09:s2": 182,
+    "DHMTW14:openalex": 97,
+    "DHMTW14:s2": 117,
+    "DIN16:openalex": 45,
+    "DIN16:s2": 116,
+    "IP01:openalex": 1146,
+    "IP01:s2": 1622,
+    "IPZ01:openalex": 1442,
+    "IPZ01:s2": 1710,
+    "LMS11:openalex": 335,
+    "LMS11:s2": 396,
+    "MR17:openalex": 54,
+    "MR17:s2": 129,
+    "VW18:openalex": 101,
+    "VW18:s2": 278,
+    "WIL05:openalex": 421,
+    "WIL05:s2": 565
+  },
+  "entries_total": 3514,
+  "entries_by_seed": {
+    "CDLMNOPSW16": 262,
+    "CGIMPS16": 162,
+    "CIP09": 188,
+    "DHMTW14": 147,
+    "DIN16": 116,
+    "IP01": 1704,
+    "IPZ01": 1810,
+    "LMS11": 434,
+    "MR17": 130,
+    "VW18": 284,
+    "WIL05": 575
+  },
+  "entries_with_doi": 2884,
+  "entries_with_arxiv": 1755,
+  "entries_with_oa_pdf_url": 1861,
+  "entries_in_both_sources": 1955,
+  "entries_with_multiple_openalex_ids": 361,
+  "entries_merged_by_title_only": 154,
+  "entries_is_seed": 12,
+  "entries_citing_core": 2931,
+  "entries_aux_only": 583,
+  "per_seed": {
+    "IP01": {
+      "openalex_meta_count": 1146,
+      "openalex_fetched": 1146,
+      "s2_fetched": 1622
+    },
+    "IPZ01": {
+      "openalex_meta_count": 1442,
+      "openalex_fetched": 1442,
+      "s2_fetched": 1710
+    },
+    "CIP09": {
+      "openalex_meta_count": 124,
+      "openalex_fetched": 124,
+      "s2_fetched": 182
+    },
+    "DIN16": {
+      "openalex_meta_count": 45,
+      "openalex_fetched": 45,
+      "s2_fetched": 116
+    },
+    "MR17": {
+      "openalex_meta_count": 54,
+      "openalex_fetched": 54,
+      "s2_fetched": 129
+    },
+    "DHMTW14": {
+      "openalex_meta_count": 97,
+      "openalex_fetched": 97,
+      "s2_fetched": 117
+    },
+    "CGIMPS16": {
+      "openalex_meta_count": 101,
+      "openalex_fetched": 101,
+      "s2_fetched": 138
+    },
+    "WIL05": {
+      "openalex_meta_count": 421,
+      "openalex_fetched": 421,
+      "s2_fetched": 565
+    },
+    "CDLMNOPSW16": {
+      "openalex_meta_count": 187,
+      "openalex_fetched": 187,
+      "s2_fetched": 263
+    },
+    "LMS11": {
+      "openalex_meta_count": 335,
+      "openalex_fetched": 335,
+      "s2_fetched": 396
+    },
+    "VW18": {
+      "openalex_meta_count": 101,
+      "openalex_fetched": 101,
+      "s2_fetched": 278
+    }
+  },
+  "snapshot": {
+    "jsonl": "data\\raw\\corpus_snapshot_2026-10-30.jsonl",
+    "manifest": "data\\raw\\manifest_2026-10-30.csv"
+  },
+  "checksums": "data\\checksums.sha256"
+}

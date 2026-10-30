@@ -19,6 +19,7 @@ All notable changes to this repository are documented here. The format follows K
 - `scripts/inspect_merges.py`: prints the records behind merged corpus entries (title-only, cross-source, all) and the same-title pairs the title rule declined to unite (split), for logged spot checks.
 - `configs/base.yaml`: Semantic Scholar request interval (1.1 s) and page size (1000) are configuration, read by `collect_corpus.py`.
 - `PREREGISTRATION.md` v0.1c: deduplication rule as revised after the two-source smoke.
+- EXP-001 corpus snapshot of 2026-10-30: 3,514 entries (2,931 citing a core seed), committed as `data/raw/corpus_snapshot_2026-10-30.jsonl.gz` with `manifest_2026-10-30.csv`, checksums of both forms, `experiments/EXP-001/results/counts.json` and the run log. `collect.iter_snapshot`, `snapshot_label` and `compress_snapshot` read and write plain or gzip-compressed snapshots; `counts.json` reports `entries_citing_core` and `entries_aux_only`.
 
 ### Changed
 - `ethcensus.extract.detex`: user macros become their own names (`\ETH` reads `ETH`), escaped characters and spaces are unescaped, section, title and author arguments stay on their own line, `\thanks`, `\url` and `\href` keep their visible text; premise phrases written with macros are now recognized.

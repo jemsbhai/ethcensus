@@ -34,6 +34,11 @@ data/processed/fulltext/
 *.tar.gz
 *.zip
 
+# The plain corpus snapshot is above GitHub's 50 MiB warning threshold; the
+# gzip-compressed copy written by ethcensus.collect.compress_snapshot is committed
+# instead, and data/checksums.sha256 records both files.
+data/raw/corpus_snapshot_*.jsonl
+
 # Experiment outputs that are large or regenerable. Frozen configs,
 # environment snapshots, seeds, results summaries and figures are committed.
 experiments/**/logs/*.jsonl

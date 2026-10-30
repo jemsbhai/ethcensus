@@ -300,6 +300,22 @@ def test_write_snapshot_and_checksums(tmp_path: Path):
     assert len(out.read_text(encoding="utf-8").splitlines()) == 2
 
 
+def test_snapshot_compression_and_readers(tmp_path: Path):
+    raw = tmp_path / "data" / "raw"
+    entries = C.merge_candidates([C.candidate_from_openalex(oa_work("W1", doi="10.1/x"), "IP01"),
+                                  C.candidate_from_openalex(oa_work("W2", doi="10.1/y", title="Another one"), "IP01")])
+    paths = C.write_snapshot(entries, raw, "2026-10-30")
+    plain = Path(paths["jsonl"])
+    gz = C.compress_snapshot(plain)
+    assert gz.name == "corpus_snapshot_2026-10-30.jsonl.gz"
+    assert [e["entry_id"] for e in C.iter_snapshot(gz)] == [e["entry_id"] for e in C.iter_snapshot(plain)] == ["E000001", "E000002"]
+    assert C.snapshot_label(gz) == "2026-10-30" and C.snapshot_label(plain) == "2026-10-30"
+    with pytest.raises(FileExistsError):
+        C.compress_snapshot(plain)
+    gz2 = C.compress_snapshot(plain.rename(plain.with_name("corpus_snapshot_copy.jsonl")))
+    assert gz2.read_bytes()[:10] == gz.read_bytes()[:10]      # deterministic header (no mtime)
+
+
 def test_snapshot_counts_reports_stage_counts():
     cands = [C.candidate_from_openalex(oa_work("W1", doi="10.1/x", arxiv="1607.02986"), "IP01"),
              C.candidate_from_s2(s2_item("s1", doi="10.1/x"), "IP01")]

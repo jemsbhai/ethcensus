@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Callable, Mapping
 from urllib.parse import urlparse
 
-from .collect import Throttle
+from .collect import Throttle, iter_snapshot
 
 log = logging.getLogger(__name__)
 
@@ -388,10 +388,8 @@ def append_status(status_path: Path, result: FetchResult) -> None:
 
 
 def read_snapshot(jsonl_path: Path):
-    with open(jsonl_path, encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                yield json.loads(line)
+    """Entries of a plain or gzip-compressed snapshot (see ``collect.iter_snapshot``)."""
+    yield from iter_snapshot(jsonl_path)
 
 
 def summarize_status(status_path: Path) -> dict:
