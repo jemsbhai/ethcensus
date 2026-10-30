@@ -75,7 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     oa_cfg = config["apis"]["openalex"]
     s2_cfg = config["apis"]["semanticscholar"]
     oa = C.OpenAlexClient(openalex_key, base_url=oa_cfg["base_url"], per_page=min(100, int(oa_cfg.get("per_page", 100))))
-    s2 = C.SemanticScholarClient(s2_key, base_url=s2_cfg["base_url"])
+    s2 = C.SemanticScholarClient(s2_key, base_url=s2_cfg["base_url"], limit=min(1000, int(s2_cfg.get("limit", 1000))),
+                                 min_interval=float(s2_cfg.get("min_interval_seconds", 1.1)))
 
     if args.count_only:
         counts = {}

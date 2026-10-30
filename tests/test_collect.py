@@ -84,6 +84,9 @@ def test_title_and_surname_keys():
     assert C.surname_key("Ramamohan Paturi") == "paturi"
     assert C.surname_key("Paturi, Ramamohan") == "paturi"
     assert C.surname_key("Jesper Nederlof") == "nederlof"
+    assert C.surname_key("Maxime Crochemore A") == "crochemore"      # stray initial seen in OpenAlex
+    assert C.surname_key("Virginia Vassilevska W") == "vassilevska"
+    assert C.surname_key("Klein, PN") == "klein"
     assert C.surname_key("") == ""
 
 
@@ -206,9 +209,9 @@ def test_merge_by_doi_arxiv_and_title():
                                     contexts=["unless SETH fails"]), "CIP09"),
         C.candidate_from_openalex(oa_work("W2", title="Frechet hardness", year=2014, arxiv="1404.0001"), "IP01"),
         C.candidate_from_s2(s2_item("s2", title="Frechet hardness", year=2014, arxiv="1404.0001v3"), "IP01"),
-        C.candidate_from_openalex(oa_work("W3", title="Treewidth bounds", year=2011, author="Daniel Lokshtanov"), "IP01"),
-        C.candidate_from_openalex(oa_work("W4", doi="10.1/y", title="Treewidth bounds", year=2012, author="D. Lokshtanov"), "IPZ01"),
-        C.candidate_from_openalex(oa_work("W5", title="Treewidth bounds", year=2019, author="Daniel Lokshtanov"), "IP01"),
+        C.candidate_from_openalex(oa_work("W3", title="Tight treewidth bounds", year=2011, author="Daniel Lokshtanov"), "IP01"),
+        C.candidate_from_openalex(oa_work("W4", doi="10.1/y", title="Tight treewidth bounds", year=2012, author="D. Lokshtanov"), "IPZ01"),
+        C.candidate_from_openalex(oa_work("W5", title="Tight treewidth bounds", year=2025, author="Daniel Lokshtanov"), "IP01"),
     ]
     entries = C.merge_candidates(cands)
     titles = {e.title: e for e in entries}
@@ -220,7 +223,7 @@ def test_merge_by_doi_arxiv_and_title():
     assert any(k.startswith("doi:") for k in e1.merge_keys)
     e2 = titles["Frechet hardness"]
     assert e2.arxiv_id == "1404.0001" and e2.s2_paper_ids == ["s2"]
-    tw = [e for e in entries if e.title == "Treewidth bounds"]
+    tw = [e for e in entries if e.title == "Tight treewidth bounds"]
     assert sorted(len(e.openalex_ids) for e in tw) == [1, 2]
     merged = next(e for e in tw if len(e.openalex_ids) == 2)
     assert merged.openalex_ids == ["W3", "W4"] and merged.year == 2011 and merged.doi == "10.1/y"
@@ -237,6 +240,30 @@ def test_mark_seeds_flags_seed_records_only():
     assert n == 1
     flagged = {e.doi: e.is_seed for e in entries}
     assert flagged == {"10.1006/jcss.2000.1727": True, "10.1/other": False}
+
+
+def test_title_rule_withheld_for_generic_short_or_undated_titles():
+    # Found in the EXP-001 smoke: ten S2 records titled with repository boilerplate, no year, same surname.
+    generic = [C.Candidate("s2", f"s{i}", "VW18", title="UvA-DARE (Digital Academic Repository)", first_author="Yan-Lin Chen")
+               for i in range(5)]
+    assert len(C.merge_candidates(generic)) == 5
+    short = [C.Candidate("s2", "s1", "IP01", title="Treewidth bounds", first_author="A. Author", year=2020),
+             C.Candidate("openalex", "W1", "IP01", title="Treewidth bounds", first_author="B. Author", year=2020)]
+    assert len(C.merge_candidates(short)) == 2
+    undated = [C.Candidate("s2", "s1", "IP01", title="On treewidth and stable marriage", first_author="Sushmita Gupta"),
+               C.Candidate("s2", "s2", "IP01", title="On Treewidth and Stable Marriage", first_author="S. Gupta")]
+    assert len(C.merge_candidates(undated)) == 2
+    one_dated = [C.Candidate("s2", "s1", "IP01", title="On treewidth and stable marriage", first_author="Sushmita Gupta"),
+                 C.Candidate("openalex", "W1", "IP01", title="On Treewidth and Stable Marriage", first_author="S. Gupta", year=2022)]
+    merged = C.merge_candidates(one_dated)
+    assert len(merged) == 1 and merged[0].sources == ["openalex", "s2"]
+    # Conference and journal versions sit years apart (SODA 2011 and TALG 2018 in the smoke); the tolerance covers that.
+    versions = [C.Candidate("openalex", "W1", "IP01", title="Known algorithms on graphs of bounded treewidth are probably optimal",
+                            first_author="Daniel Lokshtanov", year=2011),
+                C.Candidate("s2", "s1", "IP01", title="Known Algorithms on Graphs of Bounded Treewidth Are Probably Optimal",
+                            first_author="D. Lokshtanov", year=2018)]
+    assert len(C.merge_candidates(versions)) == 1
+    assert len(C.merge_candidates(versions, year_tolerance=1)) == 2
 
 
 def test_merge_same_source_record_twice_collapses():
@@ -284,8 +311,8 @@ def test_snapshot_counts_reports_stage_counts():
     assert counts["entries_with_arxiv"] == 1
     assert counts["candidates_by_seed_and_source"] == {"IP01:openalex": 1, "IP01:s2": 1}
     assert counts["entries_merged_by_title_only"] == 0 and counts["entries_with_multiple_openalex_ids"] == 0
-    title_only = C.merge_candidates([C.candidate_from_openalex(oa_work("W3", title="Treewidth bounds", year=2011), "IP01"),
-                                     C.candidate_from_openalex(oa_work("W4", title="Treewidth bounds", year=2012), "IP01")])
+    title_only = C.merge_candidates([C.candidate_from_openalex(oa_work("W3", title="Tight treewidth bounds", year=2011), "IP01"),
+                                     C.candidate_from_openalex(oa_work("W4", title="Tight treewidth bounds", year=2012), "IP01")])
     c2 = C.snapshot_counts(title_only, [])
     assert c2["entries_merged_by_title_only"] == 1 and c2["entries_with_multiple_openalex_ids"] == 1
 

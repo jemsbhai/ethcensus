@@ -283,6 +283,10 @@ def surname_key(name: str | None) -> str:
     if "," in name:
         text = re.sub(r"[^a-z ]+", " ", name.split(",")[0].lower()).strip()
     parts = text.split()
+    # OpenAlex sometimes appends a stray initial ("Maxime Crochemore A"); a single letter is never the surname
+    # when a longer token exists.
+    long_parts = [p for p in parts if len(p) >= 2]
+    parts = long_parts or parts
     return parts[-1] if parts else ""
 
 
@@ -290,6 +294,14 @@ def openalex_short_id(value: str | None) -> str | None:
     if not value:
         return None
     return value.rsplit("/", 1)[-1]
+
+
+# Titles that are repository or volume boilerplate rather than the name of a paper. Records that
+# carry one are never united by the title rule (found in the EXP-001 smoke: ten Semantic Scholar
+# records titled "UvA-DARE (Digital Academic Repository)" belonging to different papers).
+_GENERIC_TITLE = re.compile(r"\b(repository|front matter|table of contents|proceedings|editorial|preface|index|"
+                            r"corrigendum|erratum|untitled)\b")
+MIN_TITLE_WORDS = 3
 
 
 # ---------------------------------------------------------------------------
@@ -410,12 +422,20 @@ class _UnionFind:
             self.parent[rb] = ra
 
 
-def merge_candidates(cands: Sequence[Candidate], year_tolerance: int = 1) -> list[CorpusEntry]:
+YEAR_TOLERANCE = 10
+
+
+def merge_candidates(cands: Sequence[Candidate], year_tolerance: int = YEAR_TOLERANCE) -> list[CorpusEntry]:
     """Union candidates that are the same paper.
 
     Match order: identical source record; same DOI; same arXiv id; same normalized
-    title and first-author surname with years within ``year_tolerance``.
-    Every applied key is recorded in ``merge_keys`` of the resulting entry.
+    title and first-author surname with years within ``year_tolerance``. The tolerance
+    is wide because journal versions of theory papers appear two to eight years after
+    the conference version (EXP-001 smoke: 45 of 45 same-title pairs kept apart by a
+    one-year tolerance were versions of one paper). The title rule is withheld for
+    titles of fewer than ``MIN_TITLE_WORDS`` words or matching ``_GENERIC_TITLE``, and
+    for pairs in which neither record carries a year. Every applied key is recorded in
+    ``merge_keys`` of the resulting entry.
     """
     uf = _UnionFind(len(cands))
     keys_applied: dict[int, set[str]] = {i: set() for i in range(len(cands))}
@@ -447,13 +467,24 @@ def merge_candidates(cands: Sequence[Candidate], year_tolerance: int = 1) -> lis
         link(group, f"doi:{doi}")
     for aid, group in by_arxiv.items():
         link(group, f"arxiv:{aid}")
+    withheld = 0
     for (tk, sk), group in by_title.items():
+        if len(group) < 2:
+            continue
+        if len(tk.split()) < MIN_TITLE_WORDS or _GENERIC_TITLE.search(tk):
+            withheld += len(group) - 1
+            continue
         group = sorted(group, key=lambda i: (cands[i].year is None, cands[i].year or 0))
         for a_pos, a in enumerate(group):
             for b in group[a_pos + 1:]:
                 ya, yb = cands[a].year, cands[b].year
+                if ya is None and yb is None:
+                    withheld += 1
+                    continue
                 if ya is None or yb is None or abs(ya - yb) <= year_tolerance:
                     link([a, b], f"title:{tk[:40]}|{sk}")
+    if withheld:
+        log.info("title rule withheld for %d candidate pairs (generic or short title, or no year on either record)", withheld)
 
     clusters: dict[int, list[int]] = {}
     for i in range(len(cands)):

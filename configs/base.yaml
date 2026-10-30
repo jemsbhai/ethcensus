@@ -18,7 +18,10 @@ apis:
     # Keys and the mailto address are read from .env (OPENALEX_API_KEY, OPENALEX_MAILTO).
   semanticscholar:
     base_url: https://api.semanticscholar.org/graph/v1
-    # Key read from .env (S2_API_KEY).
+    # Key read from .env (S2_API_KEY). The key's limit is one request per second;
+    # the interval is kept above that so that timing jitter never trips it.
+    min_interval_seconds: 1.1
+    limit: 1000
   arxiv:
     base_url: https://export.arxiv.org/api/query
     request_interval_seconds: 3
