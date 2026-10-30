@@ -1,0 +1,7 @@
+# Data and experiment artifacts are stored byte-for-byte: their SHA-256 values in
+# data/checksums.sha256 must verify after a clone on any platform, so git must not
+# translate line endings in them. Source files keep git's default text handling.
+data/** -text
+experiments/** -text
+*.gz binary
+*.pdf binary

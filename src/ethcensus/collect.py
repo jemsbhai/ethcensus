@@ -559,7 +559,8 @@ def write_snapshot(entries: Sequence[CorpusEntry], data_raw_dir: Path, snapshot_
     jsonl_path = data_raw_dir / f"corpus_snapshot_{snapshot_date}.jsonl"
     if jsonl_path.exists():
         raise FileExistsError(f"{jsonl_path} exists; snapshots are never overwritten")
-    with open(jsonl_path, "w", encoding="utf-8") as f:
+    # newline="\n" so that the bytes, and therefore the checksum, are the same on every platform
+    with open(jsonl_path, "w", encoding="utf-8", newline="\n") as f:
         for e in entries:
             f.write(json.dumps(asdict(e), ensure_ascii=False) + "\n")
     manifest_path = data_raw_dir / f"manifest_{snapshot_date}.csv"
@@ -614,7 +615,7 @@ def update_checksums(data_dir: Path, paths: Iterable[Path]) -> Path:
     existing: set[str] = set()
     if out.exists():
         existing = {line.split("  ", 1)[1].strip() for line in out.read_text(encoding="utf-8").splitlines() if "  " in line}
-    with open(out, "a", encoding="utf-8") as f:
+    with open(out, "a", encoding="utf-8", newline="\n") as f:      # sha256sum -c rejects CRLF lines
         for p in paths:
             rel = p.relative_to(data_dir.parent).as_posix()
             if rel in existing:

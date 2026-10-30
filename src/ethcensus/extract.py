@@ -351,7 +351,7 @@ def summarize(contexts: Iterable[Context]) -> dict:
 def write_contexts(contexts: Iterable[Context], path: Path) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     n = 0
-    with open(path, "a", encoding="utf-8") as f:
+    with open(path, "a", encoding="utf-8", newline="\n") as f:     # same bytes on every platform
         for c in contexts:
             f.write(json.dumps(asdict(c), ensure_ascii=False) + "\n")
             n += 1

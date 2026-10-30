@@ -214,11 +214,11 @@ def reprocess_row(row: Mapping[str, str]) -> str:
         main = find_main_tex(files) if files else None
         if not main:
             return "no main file"
-        Path(row["processed_path"]).write_text(flatten_tex(files, main), encoding="utf-8")
+        Path(row["processed_path"]).write_text(flatten_tex(files, main), encoding="utf-8", newline="\n")
         return f"main={main}; files={len(files)}"
     if row["text_basis"] == "PDF":
         inner = gzip.decompress(body) if sniff(body) == "gzip" else body
-        Path(row["processed_path"]).write_text(pdf_to_text(inner), encoding="utf-8")
+        Path(row["processed_path"]).write_text(pdf_to_text(inner), encoding="utf-8", newline="\n")
         return "pdf"
     return "skipped"
 
@@ -293,7 +293,7 @@ class FullTextFetcher:
         d = self.processed_dir / entry_id
         d.mkdir(parents=True, exist_ok=True)
         p = d / filename
-        p.write_text(text, encoding="utf-8")
+        p.write_text(text, encoding="utf-8", newline="\n")
         return p
 
     def fetch_entry(self, entry: Mapping) -> FetchResult:
