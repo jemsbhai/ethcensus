@@ -71,20 +71,20 @@ The citation criterion misses papers that use ETH without citing a seed (for exa
 
 ## 4. Extraction (EXP-002)
 
-The extractor (`ethcensus.extract`) produces, for each work, every theorem-like environment and every sentence within three sentences of a hypothesis mention, using the pattern list `configs/patterns.yaml` (frozen with the tag). Extraction coverage (works with at least one context, by text_basis) is reported. The extractor is validated on the development set (Section 5.2): the share of annotator-identified results that the extractor captured is reported as extractor recall.
+The extractor (`ethcensus.extract`) produces, for each work, every theorem-like environment and every sentence within three sentences of a hypothesis mention, using the pattern list `configs/patterns.yaml` (frozen with the tag). Named mentions and unnamed paraphrases ("no subexponential-time algorithm for 3-SAT") carry different extraction codes, and the precision of each is reported from the gold set. Extraction coverage (works with at least one context, by text_basis) is reported. The extractor is validated two ways: on the development set (Section 5.2), the share of annotator-identified results that the extractor captured is reported as result-level extractor recall; on the zero-context stratum of the gold sample (Section 5.1), the share of works that state a conditional result in wording the patterns miss is reported as the paper-level miss rate.
 
 ## 5. Human annotation (EXP-003)
 
 ### 5.1 Sampling frame and strata
 
-The frame is the set of corpus works with at least one extracted context, plus the works with text_basis ABSTRACT. Strata: text_basis (LATEX, PDF, ABSTRACT) crossed with publication period (up to 2010, 2011 to 2016, 2017 to 2021, 2022 to 2026) and with the seed group cited (ETH-defining only; SETH; Gap-ETH; #ETH; NSETH; auxiliary only). Allocation is proportional with a minimum of 20 works per non-empty stratum, so rare hypotheses are oversampled; sampling weights are recorded and used in every estimate.
+The frame is the whole corpus. Works with at least one extracted context, and works with text_basis ABSTRACT, are stratified by text_basis (LATEX, PDF, ABSTRACT) crossed with publication period (up to 2010, 2011 to 2016, 2017 to 2021, 2022 to 2026) and with the seed group cited (ETH-defining only; SETH; Gap-ETH; #ETH; NSETH; auxiliary only). Allocation is proportional with a minimum of 20 works per non-empty stratum, so rare hypotheses are oversampled. Works with full text (LATEX or PDF) and no extracted context form one further stratum, the zero-context stratum, with a fixed allocation (Section 5.2); the pipeline labels these works out_of_scope, and the stratum measures how often that label is wrong. Sampling weights are recorded and used in every estimate.
 
 ### 5.2 Sample sizes (TO CONFIRM)
 
 Two requirements set the size: a Wilson interval of half-width 0.05 at 95 percent on the exposed share needs 381 works at the worst case, and Krippendorff's sample-size rule for alpha at or above 0.80 with four to five codes and two coders needs about 139 double-coded works.
 
-- Option A (recommended): gold set 400 works, of which 150 double-coded by MS and MSi (reliability subsample) and 250 single-coded, split equally; development set 40 further works, disjoint, used for the codebook pilot and prompt development and excluded from all statistics. Estimated effort at 30 minutes per work: about 300 person-hours.
-- Option B: gold set 300 (half-width about 0.057), 100 double-coded; development set 40. About 220 person-hours.
+- Option A (recommended): gold set 400 works with contexts, of which 150 double-coded by MS and MSi (reliability subsample) and 250 single-coded, split equally; zero-context stratum 60 works, single-coded; development set 40 further works, disjoint, used for the codebook pilot and prompt development and excluded from all statistics. Estimated effort at 30 minutes per work with contexts and 10 minutes per zero-context work: about 310 person-hours.
+- Option B: gold set 300 (half-width about 0.057), 100 double-coded; zero-context stratum 40; development set 40. About 230 person-hours.
 
 The sample is drawn by `scripts/sample_gold.py` with master seed 20261029 before any annotation begins, and the drawn identifiers are committed.
 
@@ -132,6 +132,8 @@ Corpus-level shares are estimated two ways, and both are reported:
 
 If the two intervals do not overlap, the design-based estimate is the headline and the discrepancy is reported as a finding about the classifier.
 
+The classifier never sees a zero-context work, so paper-level estimates treat the zero-context stratum design-based in both methods: its contribution to E1 and E3 is the stratum's weighted share of works found in scope on reading, with its own Wilson interval, added to the estimate for the works with contexts.
+
 ### 7.3 Confirmatory hypotheses and decision rules
 
 - H1 (Orthogonal Vectors routing): E2 is at least 0.50. Supported if the lower bound of the 95 percent interval exceeds 0.50; refuted if the upper bound is below 0.50; inconclusive otherwise.
@@ -174,3 +176,4 @@ Primary target: Journal of Artificial Intelligence Research. The manuscript is w
 
 - 2026-10-29 v0.1: initial draft from the three background reports in `_ai/paper4/reports/`.
 - 2026-10-29 v0.1a: Section 6.1 changed from a local secondary model to two cloud models (decision D10).
+- 2026-10-29 v0.1b: Sections 4, 5.1, 5.2 and 7.2 add the zero-context stratum and the paraphrase extraction code, after the EXP-002 smoke run (LOGBOOK EXP-002 addenda of 17:35 and 17:55) showed that works citing a seed with no hypothesis wording, and works paraphrasing ETH without naming it, both occur; the earlier frame excluded zero-context works from the gold sample altogether.

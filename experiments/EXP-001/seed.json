@@ -1,0 +1,4 @@
+{
+  "master_seed": 20261029,
+  "notes": "corpus collection is deterministic given the API state"
+}

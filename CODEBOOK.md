@@ -142,7 +142,9 @@ The Anthropic paper's criterion ("prove at least one result of their own only un
 
 ## 9. Extraction of candidate results
 
-The pipeline extracts, from LaTeX source when available and from PDF text otherwise, every theorem-like environment and every sentence within a window of three sentences of a hypothesis mention. Hypothesis mentions are matched by a fixed pattern list stored in `configs/patterns.yaml` (names, abbreviations, and phrasings such as "unless ETH fails", "assuming SETH", "under the Strong Exponential Time Hypothesis", "Orthogonal Vectors"). Each extracted context is a candidate result. Annotators may merge candidates that refer to the same stated result and may add results the extractor missed; both actions are recorded.
+The pipeline extracts, from LaTeX source when available and from PDF text otherwise, every theorem-like environment and every sentence within a window of three sentences of a hypothesis mention. Hypothesis mentions are matched by a fixed pattern list stored in `configs/patterns.yaml` (names, abbreviations, and phrasings such as "unless ETH fails", "assuming SETH", "under the Strong Exponential Time Hypothesis", "Orthogonal Vectors"). Unnamed paraphrases of ETH or SETH ("no subexponential-time algorithm for 3-SAT", "k-SAT cannot be solved in 2^{o(n)} time", "CNF-SAT requires 2^{(1-eps)n} time") are matched under the separate extraction code ETH_PARA, so that their precision is reported apart from the named mentions; the annotator records the hypothesis the paraphrase denotes in hypotheses_stated. Each extracted context is a candidate result. Annotators may merge candidates that refer to the same stated result and may add results the extractor missed; both actions are recorded.
+
+A paper that cites a seed but yields no context is not excluded from the census. Such papers form their own stratum of the gold sample (PREREGISTRATION.md), so that the share of them that use a hypothesis in wording the patterns miss is estimated and reported as the extractor's paper-level miss rate; the rest are out_of_scope by the rules of Section 8.
 
 ## 10. Annotation procedure
 
@@ -168,3 +170,4 @@ Records in the reliability subsample are annotated independently by MS and MSi, 
 ## Revision log
 
 - 2026-10-29 v0.1: initial draft.
+- 2026-10-29 v0.1 (in place, before the tag): Section 9 names the ETH_PARA paraphrase code (patterns.yaml 0.2) and the zero-context stratum, after the EXP-002 smoke run found one of ten papers using ETH's content without its name and two citing a seed without any hypothesis wording.

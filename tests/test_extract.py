@@ -48,6 +48,17 @@ def test_patterns_load_and_match(patterns):
     assert "OVH" in codes and "KCLIQUE" in codes
 
 
+def test_paraphrase_patterns_are_a_separate_code(patterns):
+    hits = ["unless there is a subexponential-time quantum algorithm for 3-$SAT$, then a constant exists",
+            "3-SAT cannot be solved in time 2^{o(n)}", "$k$-SAT requires time $2^{Omega(n)}$ for every k",
+            "CNF-SAT cannot be solved in $O(2^{(1-\\epsilon)n})$ time"]
+    for s in hits:
+        codes, _ = patterns.match(s)
+        assert codes == ["ETH_PARA"], s
+    for s in ["subexponential algorithms for planar graph problems are known", "the SAT solver is fast", "Max-SAT is in APX"]:
+        assert patterns.match(s)[0] == [], s
+
+
 def test_strip_comments_preserves_offsets():
     tex = "a % comment\nb \\% not a comment"
     out = X.strip_comments(tex)
@@ -67,6 +78,18 @@ def test_theorem_environments_maps_custom_names():
 def test_detex_drops_citations_and_formatting():
     s = X.detex(r"Unless \textbf{SETH} fails \cite{A,B}, see \Cref{thm:main}\label{x}. Let $n$ be large.")
     assert s == 'Unless SETH fails [cite], see [ref]. Let $n$ be large.'
+
+
+def test_detex_turns_macros_into_their_names(patterns):
+    s = X.detex(r"\IS\ requires time $\exp(\Omega(n))$ unless \ETH\ fails; see \#$d$-SAT and \fast{}.")
+    assert s == "IS requires time $exp(Omega(n))$ unless ETH fails; see #$d$-SAT and fast."
+    codes, premise = patterns.match(s)
+    assert codes == ["ETH"] and premise
+    s = X.detex(r"\subsection{Lower bound} \begin{proof}[Proof of Theorem 2 of [cite]] Suppose not. \end{proof}")
+    assert s == "Lower bound\n Suppose not."
+    s = X.detex(r"\title{A result}\author{A. Author\thanks{Funded.} \and B. Author}\maketitle See \url{http://x.org}.")
+    assert s == "A result\n\nA. Author (footnote: Funded.) B. Author\n See http://x.org."
+    assert X.detex(r"$x\in\Q$ and $n\log n$ and $2^{\Omega(n)}$") == "$x in Q$ and $n log n$ and $2^{Omega(n)}$"
 
 
 def test_split_sentences_protects_abbreviations():
@@ -106,11 +129,14 @@ def test_extract_latex_ignores_lemma_without_mention(patterns):
 def test_extract_plain_pdf_headings_and_windows(patterns):
     text = ("1 Introduction\nThe problem is hard. We assume ETH throughout. Filler.\n\n"
             "Theorem 3.1. Unless the ETH fails, k-Clique has no f(k) n^{o(k)} algorithm.\n"
-            "Proof. By [12].\n\nLemma 2. Every graph has a vertex.\n\nConclusion. Nothing else.")
+            "Proof. By [12].\n\nLemma 2. Every graph has a vertex.\n\nConclusion. Nothing else.\n"
+            "Theorem 4.2 (Karp-Lipton) If Circuit SAT is in half-exponential time, then EXP is not in P/poly.\n"
+            "5 Discussion\nUnder ETH this paragraph must not be glued to Theorem 4.2.")
     ctx = X.extract_plain("E2", text, patterns, text_basis="PDF")
     thm = [c for c in ctx if c.kind == "theorem"]
     assert len(thm) == 1 and thm[0].label == "3.1" and thm[0].hypotheses == ["ETH"] and thm[0].premise_phrase
     assert "Proof." not in thm[0].text
+    assert not any("Karp-Lipton" in c.text and "glued" in c.text for c in ctx)
     sent = [c for c in ctx if c.kind == "sentence"]
     assert len(sent) == 1 and sent[0].hypotheses == ["ETH"]
     abstract = X.extract_plain("E3", "We prove hardness under SETH. Nothing more.", patterns, text_basis="ABSTRACT")

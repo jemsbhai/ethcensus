@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-10-29T20:41:37.919651+00:00",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python_version": "3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)]",
+  "git_commit": "4eabed8bc7a749b1684452e661a16efdaf3f32b7",
+  "git_dirty": true,
+  "packages": {
+    "requests": "2.32.5",
+    "pyyaml": "6.0.3",
+    "pandas": "2.3.3",
+    "numpy": "2.0.2",
+    "scipy": "1.17.1",
+    "tqdm": "4.67.3",
+    "python-dotenv": "1.2.2",
+    "ethcensus": "0.0.1"
+  }
+}

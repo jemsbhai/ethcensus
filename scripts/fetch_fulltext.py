@@ -9,6 +9,10 @@ Resumable: entries already present in the status file are skipped, so an
 interrupted run continues where it stopped. Respects the arXiv Terms of Use
 (one request every three seconds). The OpenAlex cached-PDF fallback costs
 credits and is used only with --use-openalex-content.
+
+After a change to the text processing (LaTeX flattening or PDF text extraction),
+``--reprocess`` re-derives every processed text in the status file from the stored,
+checksummed raw downloads without any network call, then exits.
 """
 from __future__ import annotations
 
@@ -37,8 +41,23 @@ def parse_args(argv=None):
     p.add_argument("--limit", type=int, default=None, help="stop after this many newly fetched entries (smoke tests)")
     p.add_argument("--only-arxiv", action="store_true", help="skip entries without an arXiv identifier")
     p.add_argument("--use-openalex-content", action="store_true")
+    p.add_argument("--reprocess", action="store_true",
+                   help="re-derive processed texts from the stored raw files for every row of the status file, no network")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args(argv)
+
+
+def reprocess(status_path: Path) -> dict:
+    import csv
+
+    counts: dict[str, int] = {}
+    with open(status_path, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            note = F.reprocess_row(row)
+            key = f"{row['text_basis']}:{note.split('=')[0].split(';')[0]}"
+            counts[key] = counts.get(key, 0) + 1
+            log.debug("%s: %s", row["entry_id"], note)
+    return {"status_file": str(status_path), "reprocessed": dict(sorted(counts.items()))}
 
 
 def main(argv=None) -> int:
@@ -54,6 +73,11 @@ def main(argv=None) -> int:
     status_path = data_dir / "processed" / f"fulltext_status_{label}.csv"
     out = Path(args.out)
     (out / "results").mkdir(parents=True, exist_ok=True)
+
+    if args.reprocess:
+        summary = reprocess(status_path)
+        print(json.dumps(summary, indent=2))
+        return 0
 
     fetcher = F.FullTextFetcher(raw_dir, processed_dir,
                                 contact=os.environ.get("CONTACT_EMAIL") or os.environ.get("OPENALEX_MAILTO") or "",

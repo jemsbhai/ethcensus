@@ -2,7 +2,7 @@
 # Python regular expressions, matched case-sensitively unless a pattern starts
 # with (?i). A sentence that matches an exclusion is dropped before matching.
 # This file is frozen with the tag prereg-v1; changes afterwards are a new version.
-version: 0.1
+version: 0.2
 window_sentences: 3
 theorem_environments: [theorem, corollary, lemma, proposition, claim, observation, conjecture, hypothesis]
 exclusions:
@@ -13,24 +13,32 @@ exclusions:
 patterns:
   ETH:
     # "Strong Exponential Time Hypothesis", "Gap-ETH" and "#ETH" must not also count as ETH.
-    - "(?i)(?<!strong )\\bexponential[- ]time hypothesis\\b"
+    - "(?i)(?<!strong )\\bexponential[- ]?time hypothesis\\b"
     - "(?<![#\\-])\\bETH\\b"
     - "\\br-?ETH\\b"
   SETH:
-    - "(?i)\\bStrong Exponential[- ]Time Hypothesis\\b"
+    - "(?i)\\bStrong Exponential[- ]?Time Hypothesis\\b"
     - "\\bSETH\\b"
   GAP_ETH:
     - "\\bGap[- ]ETH\\b"
-    - "(?i)\\bgap exponential[- ]time hypothesis\\b"
+    - "(?i)\\bgap exponential[- ]?time hypothesis\\b"
   SHARP_ETH:
     - "#\\s?ETH\\b"
     - "#\\s?SETH\\b"
-    - "(?i)\\bcounting exponential[- ]time hypothesis\\b"
+    - "(?i)\\bcounting exponential[- ]?time hypothesis\\b"
   NSETH:
     - "\\bNSETH\\b"
-    - "(?i)\\bnondeterministic strong exponential[- ]time hypothesis\\b"
+    - "(?i)\\bnondeterministic strong exponential[- ]?time hypothesis\\b"
   NU_ETH:
     - "(?i)\\bnon-?uniform (S)?ETH\\b"
+  # Unnamed paraphrases of ETH or SETH: "no subexponential-time algorithm for 3-SAT",
+  # "k-SAT cannot be solved in 2^{o(n)} time", "CNF-SAT requires 2^{(1-eps)n} time".
+  # Matched on de-TeXed text, where "3-$\\SAT$" reads "3-$SAT$". Kept as its own code
+  # (added in version 0.2 after the EXP-002 smoke run) so that its precision is reported separately.
+  ETH_PARA:
+    - "(?i)\\bsub-?exponential(?:[- ]time)?\\s+(?:\\w+\\s+)?algorithms?\\s+for\\s+\\S{0,8}SAT\\b"
+    - "(?i)\\b2\\^\\{?o\\(n\\)\\}?(?:[- ]time)?\\s+algorithms?\\s+for\\s+\\S{0,8}SAT\\b"
+    - "(?i)\\S{0,8}SAT\\b\\s+(?:has|admits|requires|needs|cannot be solved|can be solved|is (?:not )?solvable|is in)[^.]{0,50}(?:2\\^\\{?o\\(n\\)|2\\^\\{?\\\\?Omega\\(n\\)|2\\^\\{?\\(1\\s*-|\\(2\\s*-\\s*\\\\?\\w+\\)\\^\\{?n|sub-?exponential)"
   OVH:
     - "(?i)\\borthogonal vectors?\\b"
     - "\\bk-OV\\b"
@@ -62,9 +70,9 @@ patterns:
     - "\\bW\\[1\\]\\b"
     - "\\bFPT\\s*(\\\\neq|!=|≠)\\s*W\\[1\\]"
 premise_phrases:
-  - "(?i)\\bunless (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH) (fails|is false)"
-  - "(?i)\\bassuming (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH)\\b"
-  - "(?i)\\bunder (the )?(strong |gap-?|#)?(exponential[- ]time hypothesis|S?ETH)\\b"
+  - "(?i)\\bunless (the )?(strong |gap-?|#)?(exponential[- ]?time hypothesis|S?ETH) (fails|is false)"
+  - "(?i)\\bassuming (the )?(strong |gap-?|#)?(exponential[- ]?time hypothesis|S?ETH)\\b"
+  - "(?i)\\bunder (the )?(strong |gap-?|#)?(exponential[- ]?time hypothesis|S?ETH)\\b"
   - "(?i)\\b(S|gap-?|#)?ETH[- ]hard\\b"
   - "(?i)\\bconditional (lower bound|on)\\b"
   - "(?i)\\bif (the )?(S|gap-?|#)?ETH (holds|is true)\\b"

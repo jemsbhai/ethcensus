@@ -98,6 +98,42 @@ def test_pdf_to_text_extracts_inserted_text():
     assert "Assuming ETH" in text
 
 
+def test_pdf_to_text_keeps_paragraph_blocks_and_joins_hyphenated_lines():
+    fitz = pytest.importorskip("fitz")
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "Theorem 4.2 (Karp-Lipton) If Circuit SAT is in half-exponential\ntime, then EXP is not in P/poly.")
+    page.insert_text((72, 140), "Now how plausible is this assumption? Under the Exponential Time Hy-\npothesis it is.")
+    doc.new_page().insert_text((72, 72), "Second page.")
+    text = F.pdf_to_text(doc.tobytes())
+    first, second = text.split("\f")
+    assert first == ("Theorem 4.2 (Karp-Lipton) If Circuit SAT is in half-exponential time, then EXP is not in P/poly.\n\n"
+                     "Now how plausible is this assumption? Under the Exponential Time Hypothesis it is.")
+    assert second == "Second page."
+
+
+def test_reprocess_row_rederives_processed_text_from_raw(tmp_path: Path):
+    raw = tmp_path / "raw" / "E000001" / "arxiv.pdf"
+    raw.parent.mkdir(parents=True)
+    raw.write_bytes(make_pdf("Reprocessed text."))
+    processed = tmp_path / "proc" / "E000001" / "text.txt"
+    processed.parent.mkdir(parents=True)
+    processed.write_text("stale", encoding="utf-8")
+    row = {"entry_id": "E000001", "text_basis": "PDF", "raw_path": str(raw), "processed_path": str(processed)}
+    assert F.reprocess_row(row) == "pdf"
+    assert "Reprocessed text." in processed.read_text(encoding="utf-8")
+    bundle = make_targz({"main.tex": MAIN, "sections/intro.tex": INTRO, "sections/deeper.tex": DEEPER, "conclusion.tex": CONCL})
+    raw_tex = tmp_path / "raw" / "E000002" / "arxiv_eprint.bin"
+    raw_tex.parent.mkdir(parents=True)
+    raw_tex.write_bytes(bundle)
+    proc_tex = tmp_path / "proc" / "E000002" / "main.tex"
+    proc_tex.parent.mkdir(parents=True)
+    row2 = {"entry_id": "E000002", "text_basis": "LATEX", "raw_path": str(raw_tex), "processed_path": str(proc_tex)}
+    assert F.reprocess_row(row2) == "main=main.tex; files=4"
+    assert "Deep text" in proc_tex.read_text(encoding="utf-8")
+    assert F.reprocess_row({"entry_id": "E3", "text_basis": "ABSTRACT", "raw_path": "", "processed_path": "x"}) == "no raw file"
+
+
 # ---------------------------------------------------------------------------
 # Acquisition flows
 # ---------------------------------------------------------------------------

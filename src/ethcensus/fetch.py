@@ -24,6 +24,7 @@ import logging
 import re
 import tarfile
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Mapping
@@ -171,11 +172,55 @@ def flatten_tex(files: Mapping[str, str], main: str, max_depth: int = 20) -> str
 
 
 def pdf_to_text(body: bytes) -> str:
-    """Extract page texts with PyMuPDF, separated by form feeds (one per page)."""
+    """Extract text with PyMuPDF: one line per paragraph block, blank line between blocks, form feed between pages.
+
+    Block mode keeps the paragraph structure that plain-text mode discards, so a theorem
+    statement ends where its paragraph ends. Inside a block, end-of-line hyphenation is
+    removed and lines are joined so that a sentence is contiguous; NFKC normalization turns
+    ligatures ("ﬁ") into their letters so that patterns match "Satisfiability".
+    """
     import fitz  # PyMuPDF
 
+    pages: list[str] = []
     with fitz.open(stream=body, filetype="pdf") as doc:
-        return "\f".join(page.get_text("text") for page in doc)
+        for page in doc:
+            blocks: list[str] = []
+            for b in page.get_text("blocks"):
+                if len(b) > 6 and b[6] != 0:          # image blocks carry type 1
+                    continue
+                t = unicodedata.normalize("NFKC", b[4]).strip()
+                t = re.sub(r"(?<=\w)-\n(?=\w)", "", t)   # end-of-line hyphenation
+                t = re.sub(r"[ \t]*\n[ \t]*", " ", t)      # lines of one paragraph become one line
+                if t:
+                    blocks.append(t)
+            pages.append("\n\n".join(blocks))
+    return "\f".join(pages)
+
+
+def reprocess_row(row: Mapping[str, str]) -> str:
+    """Re-derive one status row's processed text from its stored raw file (no network); returns a note.
+
+    Used after a change to the text processing (``flatten_tex`` or ``pdf_to_text``) so that
+    every processed text is the current function of the checksummed raw download.
+    """
+    if not row.get("raw_path") or not row.get("processed_path"):
+        return "no raw file"
+    raw = Path(row["raw_path"])
+    if not raw.exists():
+        return "raw file missing"
+    body = raw.read_bytes()
+    if row["text_basis"] == "LATEX":
+        files = read_tex_bundle(body)
+        main = find_main_tex(files) if files else None
+        if not main:
+            return "no main file"
+        Path(row["processed_path"]).write_text(flatten_tex(files, main), encoding="utf-8")
+        return f"main={main}; files={len(files)}"
+    if row["text_basis"] == "PDF":
+        inner = gzip.decompress(body) if sniff(body) == "gzip" else body
+        Path(row["processed_path"]).write_text(pdf_to_text(inner), encoding="utf-8")
+        return "pdf"
+    return "skipped"
 
 
 def abstract_from_inverted_index(index: Mapping[str, list[int]] | None) -> str:

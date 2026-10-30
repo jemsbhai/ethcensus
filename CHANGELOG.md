@@ -13,3 +13,11 @@ All notable changes to this repository are documented here. The format follows K
 - `is_seed` flag on corpus entries (seed works citing other seeds are kept but excluded from sampling); manifest carries `is_seed` and `merge_keys`; stage counts report entries with several OpenAlex ids and entries merged by title alone.
 - `ethcensus.extract`: hypothesis-context extraction from LaTeX (comment stripping with offsets kept, custom theorem environments via newtheorem and declaretheorem, section tracking, de-TeXing, sentence windows outside environments) and from PDF text or abstracts (heading blocks plus windows); 9 tests. `scripts/extract_contexts.py` entry point (EXP-002). ETH patterns no longer match inside SETH, Gap-ETH or #ETH.
 - `ethcensus.fetch`: full-text acquisition (arXiv e-print with LaTeX flattening, arXiv PDF, OA PDF, optional OpenAlex cached PDF, abstract fallback), arXiv-compliant throttling, resumable status file, PDF text via PyMuPDF; 13 tests. `scripts/fetch_fulltext.py` entry point.
+- `configs/patterns.yaml` 0.2: extraction code `ETH_PARA` for unnamed paraphrases of ETH and SETH; named-hypothesis patterns tolerate "exponentialtime" produced by dehyphenation.
+- `scripts/fetch_fulltext.py --reprocess` and `ethcensus.fetch.reprocess_row`: re-derive processed texts from stored raw files after a change to the text processing, without network calls.
+- `PREREGISTRATION.md` v0.1b: the sampling frame is the whole corpus; zero-context works form their own gold stratum; paper-level extractor miss rate is a reported quantity. `CODEBOOK.md` Section 9 revised to match.
+
+### Changed
+- `ethcensus.extract.detex`: user macros become their own names (`\ETH` reads `ETH`), escaped characters and spaces are unescaped, section, title and author arguments stay on their own line, `\thanks`, `\url` and `\href` keep their visible text; premise phrases written with macros are now recognized.
+- `ethcensus.extract.extract_plain`: a PDF theorem block also ends at the next theorem-like heading, numbered section heading or proof.
+- `ethcensus.fetch.pdf_to_text`: PyMuPDF block mode (one line per paragraph, blank line between paragraphs), end-of-line hyphenation joined, NFKC normalization of ligatures. Processed PDF texts produced before this change are re-derived with `--reprocess`.

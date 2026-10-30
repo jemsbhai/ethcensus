@@ -129,13 +129,21 @@ def detex(s: str) -> str:
     s = re.sub(r"\\(?:cite[tp]?|citep|citet|citeauthor|citeyear|nocite)\*?(?:\[[^\]]*\])*\s*\{[^}]*\}", "[cite]", s)
     s = re.sub(r"\\(?:[cC]ref|ref|eqref|autoref|pageref|vref)\*?\s*\{[^}]*\}", "[ref]", s)
     s = re.sub(r"\\label\s*\{[^}]*\}", "", s)
-    s = re.sub(r"\\footnote\s*\{((?:[^{}]|\{[^{}]*\})*)\}", r" (footnote: \1)", s)
+    s = re.sub(r"\\(?:footnote|thanks)\s*\{((?:[^{}]|\{[^{}]*\})*)\}", r" (footnote: \1)", s)
+    s = re.sub(r"\\href\s*\{[^}]*\}\s*\{((?:[^{}]|\{[^{}]*\})*)\}", r"\1", s)
+    s = re.sub(r"\\url\s*\{([^}]*)\}", r"\1", s)
     for _ in range(3):
         s = re.sub(r"\\(?:" + "|".join(_INLINE_CMDS) + r")\s*\{((?:[^{}]|\{[^{}]*\})*)\}", r"\1", s)
-    s = re.sub(r"\\begin\{[a-zA-Z*]+\}(?:\[[^\]]*\])?|\\end\{[a-zA-Z*]+\}", " ", s)
+    s = re.sub(r"\\(?:(?:sub)*section|(?:sub)?paragraph|title|author|institute|affil|affiliation)\*?\s*(?:\[[^\]]*\])?"
+               r"\{((?:[^{}]|\{[^{}]*\})*)\}", r"\n\1\n", s)
+    s = re.sub(r"\\(?:maketitle|date\s*\{[^}]*\}|and\b)", " ", s)
+    s = re.sub(r"\\begin\{[a-zA-Z*]+\}(?:\[(?:[^\[\]]|\[[^\]]*\])*\])?|\\end\{[a-zA-Z*]+\}", " ", s)
     s = re.sub(r"\\(?:item|par|noindent|centering|smallskip|medskip|bigskip|newline|linebreak|hfill|vspace\*?\{[^}]*\}|hspace\*?\{[^}]*\})", " ", s)
     s = s.replace("\\\\", " ").replace("~", " ").replace("``", '"').replace("''", '"')
-    s = re.sub(r"\\&", "&", s)
+    s = re.sub(r"\\([#$%&_{}])", r"\1", s)                       # escaped characters
+    s = s.replace("\\ ", " ")                                   # escaped space after a macro
+    s = re.sub(r"(?<=\w)\\([A-Za-z]+)\*?(?:\{\})?", r" \1", s)  # macro glued to a word: x\in Q becomes x in Q
+    s = re.sub(r"\\([A-Za-z]+)\*?(?:\{\})?", r"\1", s)          # remaining macros become their own name
     s = re.sub(r"[ \t]+", " ", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
@@ -284,7 +292,8 @@ def extract_plain(entry_id: str, text: str, patterns: Patterns, text_basis: str 
             kind = m.group(1).lower()
             ordinals[kind] = ordinals.get(kind, 0) + 1
             rest = text[m.end():m.end() + heading_body_chars]
-            cut = re.search(r"\n\s*\n|\n\s*Proof[.:\s]|\f", rest)
+            cut = re.search(r"\n\s*\n|\n\s*Proof[.:\s]|\f|\n\s*(?:Theorem|Lemma|Corollary|Proposition|Claim|Observation|"
+                            r"Conjecture|Hypothesis|Definition|Remark|Example)\b|\n\s*[0-9]+(?:\.[0-9]+)*\s+[A-Z][a-z]", rest)
             end = m.end() + (cut.start() if cut else len(rest))
             body = text[m.start():end]
             codes, premise = patterns.match(body)
