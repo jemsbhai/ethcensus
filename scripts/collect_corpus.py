@@ -122,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     paths = C.write_snapshot(entries, data_dir / "raw", args.snapshot_date)
     checksum_file = C.update_checksums(data_dir, [Path(paths["jsonl"]), Path(paths["manifest"])])
     counts = C.snapshot_counts(entries, candidates)
+    core_codes = {s["code"] for s in seeds if s["group"] == "core"}
+    counts["entries_citing_core"] = sum(1 for e in entries if core_codes & set(e.seeds_cited))   # the pre-registered union
+    counts["entries_aux_only"] = sum(1 for e in entries if not (core_codes & set(e.seeds_cited)))
     counts["per_seed"] = per_seed_counts
     counts["snapshot"] = paths
     counts["checksums"] = str(checksum_file)
